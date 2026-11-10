@@ -67,7 +67,7 @@ With no keys it runs in local mode (simulated PayPal, rule-based fallback for th
 4. *(Optional)* `GITHUB_TOKEN` raises the GitHub API rate limit for the verifier.
 5. *(Optional)* **Neon Postgres**: create a project at https://console.neon.tech and put its pooled connection string in `DATABASE_URL`.
 
-Reset demo data any time: **Reset demo** link on the home page, or `npm run seed`. A reset keeps the two demo accounts and Arjun's agent settings, and starts with no deals.
+Reset demo data any time with the **Reset demo data** link on the home page. A reset keeps the two demo accounts and Arjun's agent settings, and starts with no deals. The link and `POST /api/reset` only work when `ENABLE_DEMO_RESET=true`. It's on in `.env.example` for local use and off on the live site, where the link is hidden and the API returns 403. Without a database, `npm run seed` also resets the local file.
 
 ## Deploy (Render)
 1. Push to GitHub → Render → **New → Blueprint** → pick the repo (uses `render.yaml`).

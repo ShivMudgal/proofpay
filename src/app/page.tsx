@@ -7,6 +7,7 @@ import { DealBadge } from "@/components/StatusBadge";
 import { dateTime, inr } from "@/components/format";
 import { IconPlus } from "@/components/icons";
 import ResetButton from "@/components/ResetButton";
+import { demoResetEnabled } from "@/lib/flags";
 
 export default async function Overview() {
   const user = await currentUser();
@@ -79,7 +80,7 @@ export default async function Overview() {
         </section>
       </div>
 
-      <div className="mt-8 text-right"><ResetButton /></div>
+      {demoResetEnabled() && <div className="mt-8 text-right"><ResetButton /></div>}
     </>
   );
 }
