@@ -83,7 +83,7 @@ export async function draftContract(
         })),
       };
     } catch (err) {
-      console.error("contract model failed, falling back to rules", err);
+      console.error("contract model failed, falling back to rules:", err instanceof Error ? `${err.name}: ${err.message.slice(0, 200)}` : err);
     }
   }
   return ruleBasedContract(job, offer);

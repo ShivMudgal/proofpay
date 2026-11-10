@@ -8,11 +8,16 @@ export const aiLive = Boolean(API_KEY);
 
 type GeminiResponse = { candidates?: { content?: { parts?: { text?: string }[] } }[] };
 
-async function generate(system: string, prompt: string, temperature: number) {
+// Time limits, so a slow or overloaded model never stalls a request. Callers catch the error and
+// fall back to the rule engine. One attempt may take ATTEMPT_MS; the whole call, retry included, TOTAL_MS.
+const ATTEMPT_MS = Number(process.env.AI_ATTEMPT_TIMEOUT_MS) || 12_000;
+const TOTAL_MS = Number(process.env.AI_TOTAL_TIMEOUT_MS) || 20_000;
+
+async function generate(system: string, prompt: string, temperature: number, deadline: AbortSignal) {
   const res = await fetch(ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": API_KEY },
-    signal: AbortSignal.timeout(30_000),
+    signal: AbortSignal.any([AbortSignal.timeout(ATTEMPT_MS), deadline]),
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -37,10 +42,11 @@ export async function generateJson<T>({ system, prompt, schema, temperature = 0.
 }): Promise<T> {
   if (!aiLive) throw new Error("GEMINI_API_KEY is not set");
 
+  const deadline = AbortSignal.timeout(TOTAL_MS);
   let input = prompt;
   let lastError = "";
   for (let attempt = 0; attempt < 2; attempt++) {
-    const text = await generate(system, input, temperature);
+    const text = await generate(system, input, temperature, deadline);
     try {
       return schema.parse(parseJson(text));
     } catch (err) {

@@ -5,6 +5,7 @@ import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import type { Milestone, Submission } from "@/lib/types";
 import StatusBadge from "./StatusBadge";
 import { useAction } from "./useAction";
+import { HOLD_EXPIRED_LABEL } from "@/lib/labels";
 import { dateTime, shortDate, inr } from "./format";
 import { IconCheck, IconChevron, IconX } from "./icons";
 
@@ -107,15 +108,33 @@ function ActionPanel({ m, viewer, paypalClientId, charge }: { m: Milestone; view
   if (m.status === "RELEASED") return <Note title="Paid" body={`${inr(m.amount)} was captured and paid to the freelancer.`} />;
   if (m.status === "VOIDED") return <Note title="Cancelled" body="The authorization was voided. The client was not charged." />;
 
+  const holdExpired = m.status === "PENDING" && m.timeline.at(-1)?.label === HOLD_EXPIRED_LABEL;
+
   if (viewer === "CLIENT") {
-    return m.status === "PENDING" ? <FundForm m={m} paypalClientId={paypalClientId} charge={charge} /> : <HeldPanel m={m} />;
+    if (m.status !== "PENDING") return <HeldPanel m={m} />;
+    return (
+      <div className="space-y-4">
+        {holdExpired && <Notice body="The PayPal hold expired before the payment was released, so you were not charged. Fund this milestone again to continue." />}
+        <FundForm m={m} paypalClientId={paypalClientId} charge={charge} />
+      </div>
+    );
   }
   if (viewer === "FREELANCER") {
+    if (holdExpired) return <Notice body="Your work passed review, but the PayPal hold had expired, so no money was released. Resubmit once the client funds this milestone again." />;
     if (m.status === "PENDING") return <Note title="Awaiting funding" body="You'll be able to submit once the client funds this milestone." />;
     if (m.status === "SUBMITTED") return <Note title="In review" body="Your submission is being checked against the criteria." />;
     return <SubmitForm m={m} />;
   }
   return <Note title="Read only" body="You are not a party to this contract." />;
+}
+
+function Notice({ body }: { body: string }) {
+  return (
+    <div className="rounded-md border border-amber-200 bg-amber-50/70 px-3 py-2.5">
+      <div className="text-sm font-medium text-amber-900">{HOLD_EXPIRED_LABEL}</div>
+      <p className="text-xs text-amber-900/80 mt-1">{body}</p>
+    </div>
+  );
 }
 
 function Note({ title, body }: { title: string; body: string }) {
@@ -211,14 +230,17 @@ function SubmitForm({ m }: { m: Milestone }) {
   const { run, busy, error } = useAction();
   const [type, setType] = useState<(typeof SUBMISSION_TYPES)[number]["key"]>("GITHUB");
   const [value, setValue] = useState("");
+  const [notice, setNotice] = useState<string | null>(null);
   const current = SUBMISSION_TYPES.find((t) => t.key === type)!;
 
   return (
     <form
       className="space-y-3"
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
-        run(`/api/milestones/${m.id}/submit`, { type, value });
+        setNotice(null);
+        const res = await run<{ notice?: string | null }>(`/api/milestones/${m.id}/submit`, { type, value });
+        if (res?.notice) setNotice(res.notice);
       }}
     >
       <Note
@@ -243,6 +265,7 @@ function SubmitForm({ m }: { m: Milestone }) {
         <input className="field" value={value} onChange={(e) => setValue(e.target.value)} placeholder={current.placeholder} required />
       )}
       <button className="btn-primary w-full" disabled={busy || !value.trim()}>{busy ? "Reviewing…" : "Submit for review"}</button>
+      {notice && <p className="text-xs text-amber-800">{notice}</p>}
       {error && <p className="text-xs text-red-700">{error}</p>}
     </form>
   );

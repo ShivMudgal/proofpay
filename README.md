@@ -67,7 +67,23 @@ With no keys it runs in local mode (simulated PayPal, rule-based fallback for th
 4. *(Optional)* `GITHUB_TOKEN` raises the GitHub API rate limit for the verifier.
 5. *(Optional)* **Neon Postgres**: create a project at https://console.neon.tech and put its pooled connection string in `DATABASE_URL`.
 
-Reset demo data any time with the **Reset demo data** link on the home page. A reset keeps the two demo accounts and Arjun's agent settings, and starts with no deals. The link and `POST /api/reset` only work when `ENABLE_DEMO_RESET=true`. It's on in `.env.example` for local use and off on the live site, where the link is hidden and the API returns 403. Without a database, `npm run seed` also resets the local file.
+Reset demo data any time with the **Reset demo data** link on the home page. A reset keeps the two demo accounts and Arjun's agent settings, and restores the two showcase deals (see below). The link and `POST /api/reset` only work when `ENABLE_DEMO_RESET=true`. It's on in `.env.example` for local use and off on the live site, where the link is hidden and the API returns 403. Without a database, `npm run seed` also resets the local file.
+
+### Showcase deals
+Every fresh database includes two ready-made deals, so there's something to explore right away:
+- **Portfolio website for a wedding photographer**: agreed at ₹32,000, contract with 2 unfunded milestones and checkable acceptance criteria. Fund it with PayPal to start the escrow flow.
+- **Social media launch kit for a cafe**: still negotiating, with the agent's offer of ₹18,500 on the table. Reply to keep haggling.
+
+To add them to an existing database without touching anything else, run:
+```bash
+npm run showcase
+```
+It uses `DATABASE_URL` from `.env` (or `data/db.json` without it), only adds deals that aren't there yet, and is safe to run again. The showcase data has no PayPal IDs: every order, authorization and capture ID in the app comes from a real sandbox call.
+
+### Reliability
+- **AI calls** time out after 12 s per attempt and 20 s in total (`AI_ATTEMPT_TIMEOUT_MS`, `AI_TOTAL_TIMEOUT_MS`), then fall back to the rule engine, so negotiation, contract drafting and review never hang.
+- **Expired PayPal holds**: authorizations expire after a few days. If a capture fails because the hold expired or is no longer valid, ProofPay voids what's left, resets the milestone to unfunded, logs "Hold expired, please fund again" in its timeline and shows a notice instead of an error. Cancelling an expired hold also succeeds. In local mode, an authorization ID containing `EXPIRED` simulates this.
+- **API errors** are always JSON `{ "error": "..." }` with a fitting status: 400 bad input, 403 not allowed, 422/502 PayPal problems, 504 timeouts.
 
 ## Deploy (Render)
 1. Push to GitHub → Render → **New → Blueprint** → pick the repo (uses `render.yaml`).
@@ -81,7 +97,7 @@ Reset demo data any time with the **Reset demo data** link on the home page. A r
 
 > Use the account switcher in the sidebar (**Demo accounts**) to act as the client or the freelancer.
 
-1. Open the app. You're signed in as **Riya (client)** and start with no deals. Click **New deal** and post a job, for example *"Landing page for my home-baking business"* with a ₹10,000–₹20,000 budget and a short description (hero section, menu of 6 items with prices, contact form, Instagram link, deployed online).
+1. Open the app. You're signed in as **Riya (client)**. Two showcase deals are ready: open *Portfolio website for a wedding photographer* to fund a milestone right away, or *Social media launch kit for a cafe* to keep negotiating. To start from scratch, click **New deal** and post a job, for example *"Landing page for my home-baking business"* with a ₹10,000–₹20,000 budget and a short description (hero section, menu of 6 items with prices, contact form, Instagram link, deployed online).
 2. Negotiate: try `Can you do it for ₹12,000?` → `16k is my max` → `ok 18500`. The agent concedes slowly and never goes below Arjun's floor (₹15,000).
 3. Click **Accept terms** → the AI drafts the milestone contract with acceptance criteria.
 4. Fund milestone 1 with PayPal using the sandbox buyer login below → status **In escrow**.

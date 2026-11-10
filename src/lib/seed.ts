@@ -1,7 +1,8 @@
 import type { DB } from "./types";
+import { showcaseDeals } from "./showcase";
 
 export function seedData(): DB {
-  const now = new Date().toISOString();
+  const deals = showcaseDeals();
   return {
     users: [
       {
@@ -32,10 +33,10 @@ export function seedData(): DB {
         notes: "Prefer 2-3 milestones. Always include a deployed preview link. No logo design.",
       },
     ],
-    jobs: [],
-    messages: [],
-    contracts: [],
-    milestones: [],
+    jobs: deals.map((d) => d.job),
+    messages: deals.flatMap((d) => d.messages),
+    contracts: deals.flatMap((d) => (d.contract ? [d.contract] : [])),
+    milestones: deals.flatMap((d) => d.milestones),
     submissions: [],
     webhookEvents: [],
   };

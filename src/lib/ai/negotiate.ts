@@ -127,7 +127,7 @@ export async function agentTurn(
       const { offer, guardrail } = enforceRules(out.offer, rules);
       return { ...out, reply: hideFloor(out.reply, rules.floorPrice, offer.price), offer, engine: "gemini", guardrail };
     } catch (err) {
-      console.error("negotiation model failed, falling back to rules", err);
+      console.error("negotiation model failed, falling back to rules:", err instanceof Error ? `${err.name}: ${err.message.slice(0, 200)}` : err);
     }
   }
 

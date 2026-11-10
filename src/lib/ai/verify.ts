@@ -194,7 +194,7 @@ export async function reviewSubmission(
         evidencePreview: evidence.slice(0, 1500),
       };
     } catch (err) {
-      console.error("review model failed, falling back to rules", err);
+      console.error("review model failed, falling back to rules:", err instanceof Error ? `${err.name}: ${err.message.slice(0, 200)}` : err);
     }
   }
 

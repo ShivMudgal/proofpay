@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { describeError } from "@/lib/api";
 import { verifyWebhookSignature } from "@/lib/paypal";
 import { handlePayPalEvent } from "@/lib/services/webhooks";
 
@@ -11,6 +12,7 @@ export async function POST(req: Request) {
     return NextResponse.json(await handlePayPalEvent(JSON.parse(raw)));
   } catch (err) {
     console.error("paypal webhook", err);
-    return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
+    const { status, message } = describeError(err);
+    return NextResponse.json({ error: `Webhook processing failed: ${message}` }, { status });
   }
 }

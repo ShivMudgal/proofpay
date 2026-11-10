@@ -21,8 +21,9 @@ async function getAccessToken() {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: "grant_type=client_credentials",
+    signal: AbortSignal.timeout(15_000),
   });
-  if (!res.ok) throw new Error(`PayPal auth failed (${res.status}): ${await res.text()}`);
+  if (!res.ok) throw PayPalError.from("POST", "/v1/oauth2/token", res.status, await res.text());
 
   const { access_token, expires_in } = (await res.json()) as { access_token: string; expires_in: number };
   cachedToken = { value: access_token, expiresAt: Date.now() + expires_in * 1000 };
@@ -39,10 +40,48 @@ async function request<T>(method: "GET" | "POST", path: string, body?: unknown):
       Prefer: "return=representation",
     },
     body: body === undefined ? undefined : JSON.stringify(body),
+    signal: AbortSignal.timeout(20_000),
   });
   const text = await res.text();
-  if (!res.ok) throw new Error(`PayPal ${method} ${path} failed (${res.status}): ${text}`);
+  if (!res.ok) throw PayPalError.from(method, path, res.status, text);
   return (text ? JSON.parse(text) : {}) as T;
+}
+
+/** A failed PayPal API call, with PayPal's error name and first issue code when it sent them. */
+export class PayPalError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly issue: string | null,
+    public readonly debugId: string | null,
+  ) {
+    super(message);
+    this.name = "PayPalError";
+  }
+
+  static from(method: string, path: string, status: number, body: string) {
+    let issue: string | null = null;
+    let debugId: string | null = null;
+    try {
+      const j = JSON.parse(body) as { name?: string; error?: string; debug_id?: string; details?: { issue?: string }[] };
+      issue = j.details?.[0]?.issue ?? j.name ?? j.error ?? null;
+      debugId = j.debug_id ?? null;
+    } catch {
+      // Not JSON; keep the raw text in the message.
+    }
+    return new PayPalError(`PayPal ${method} ${path} failed (${status}${issue ? ` ${issue}` : ""}): ${body.slice(0, 300)}`, status, issue, debugId);
+  }
+}
+
+/**
+ * True when PayPal says the authorization no longer holds money: it expired, was voided,
+ * or doesn't exist. An already-captured authorization is NOT treated as gone.
+ */
+export function isHoldGone(err: unknown) {
+  if (!(err instanceof PayPalError)) return false;
+  const issue = (err.issue ?? "").toUpperCase();
+  if (issue.includes("ALREADY_CAPTURED")) return false;
+  return err.status === 404 || /EXPIRED|VOIDED|INVALID_RESOURCE_ID|RESOURCE_NOT_FOUND|AUTHORIZATION_DENIED/.test(issue);
 }
 
 const fakeId = (prefix: string) => `${prefix}-LOCAL-${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
@@ -93,8 +132,16 @@ export async function authorizeOrder(orderId: string) {
   return { authorizationId: auth.id, expiresAt: auth.expiration_time };
 }
 
+// Local mode only: an authorization ID containing "EXPIRED" behaves like an expired PayPal hold,
+// so the recovery path can be tried without waiting 3+ days in the sandbox.
+const simulatedExpiry = () =>
+  new PayPalError("Simulated expired authorization", 422, "AUTHORIZATION_EXPIRED", null);
+
 export async function captureAuthorization(authorizationId: string, note: string) {
-  if (!paypalLive) return { captureId: fakeId("CAPTURE") };
+  if (!paypalLive) {
+    if (authorizationId.includes("EXPIRED")) throw simulatedExpiry();
+    return { captureId: fakeId("CAPTURE") };
+  }
 
   const res = await request<{ id: string }>("POST", `/v2/payments/authorizations/${authorizationId}/capture`, {
     final_capture: true,
@@ -104,7 +151,10 @@ export async function captureAuthorization(authorizationId: string, note: string
 }
 
 export async function voidAuthorization(authorizationId: string) {
-  if (!paypalLive) return;
+  if (!paypalLive) {
+    if (authorizationId.includes("EXPIRED")) throw simulatedExpiry();
+    return;
+  }
   await request("POST", `/v2/payments/authorizations/${authorizationId}/void`);
 }
 
