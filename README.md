@@ -116,12 +116,12 @@ The live app has three sample deals, one at each stage:
 7. Open **Payments** for the AG Grid escrow view. As Arjun, open **Agent settings** to see and change the private limits.
 
 ### PayPal sandbox test buyer
-Funding a milestone opens PayPal's **sandbox** checkout. No real money moves. Log in with this test buyer account:
+Funding a milestone opens PayPal's **sandbox** checkout. No real money moves. Log in with this test buyer account (a PayPal **sandbox** Personal account, US, for testing only):
 
 | Field | Value |
 |---|---|
-| Email | `BUYER_SANDBOX_EMAIL_HERE` |
-| Password | `BUYER_SANDBOX_PASSWORD_HERE` |
+| Email | `sb-fn5o553820530@personal.example.com` |
+| Password | `u/Sw^.S0` |
 
 1. As **Riya (client)**, open the contract and click the yellow **PayPal** button on a milestone.
 2. In the PayPal pop-up, click **Log in** and enter the sandbox email and password above. Don't use a real PayPal account.
