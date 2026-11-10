@@ -47,8 +47,10 @@ async function request<T>(method: "GET" | "POST", path: string, body?: unknown):
 
 const fakeId = (prefix: string) => `${prefix}-LOCAL-${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
 
-// Placeholder seed emails can't receive sandbox payments, so skip the payee for them.
-const canReceive = (email?: string) => !!email && !email.endsWith("example.com");
+// The seed's placeholder emails aren't real sandbox accounts, so skip the payee for them.
+// Real sandbox accounts also end in example.com (e.g. sb-xxx@business.example.com), so match exactly.
+const PLACEHOLDER_EMAILS = new Set(["freelancer@business.example.com", "client@personal.example.com"]);
+const canReceive = (email?: string) => !!email && !PLACEHOLDER_EMAILS.has(email.toLowerCase());
 
 export async function createOrder(input: {
   referenceId: string;

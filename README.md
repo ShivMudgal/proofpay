@@ -68,11 +68,13 @@ Reset demo data any time: **Reset demo** link on the home page, or `npm run seed
 ---
 
 ## Judge walkthrough (2 minutes)
+> Use the account switcher in the sidebar (**Demo accounts**) to act as the client or the freelancer.
+
 1. Open the app. You're signed in as **Riya (client)**. Go to **Deals** and open *"Landing page for my home-baking business"*.
 2. Negotiate: try `Can you do it for ₹12,000?` → `16k is my max` → `ok 18500`. The agent concedes slowly and never goes below Arjun's floor (₹15,000).
 3. Click **Accept terms** → the AI drafts the milestone contract with acceptance criteria.
 4. Fund milestone 1 with PayPal (sandbox buyer login) → status **In escrow**.
-5. Switch to **Arjun (freelancer)** in the sidebar → submit work:
+5. Switch to **Arjun (freelancer)** under **Demo accounts** in the sidebar → submit work:
    - weak text like `Made the hero section only` → gap report, money stays held
    - a real repo/URL meeting the criteria → review passed → **captured and paid**
 6. As Riya, fund milestone 2, then **Cancel and release hold** → PayPal void.

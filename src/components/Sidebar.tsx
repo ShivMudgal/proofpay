@@ -70,7 +70,8 @@ export default function Sidebar({ users, currentId, role, env }: Props) {
           <div className="flex justify-between"><span>AI</span><span className="text-fg">{env.ai}</span></div>
         </div>
         <div className={pending ? "opacity-60" : ""}>
-          <div className="px-2.5 pb-1.5 text-[11px] font-medium uppercase tracking-wider text-subtle">Signed in as</div>
+          <div className="px-2.5 text-[11px] font-medium uppercase tracking-wider text-subtle">Demo accounts</div>
+          <p className="px-2.5 pb-1.5 text-[11px] text-muted">Switch roles to try both sides of a deal.</p>
           {users.map((u) => (
             <button
               key={u.id}

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const API_KEY = process.env.GEMINI_API_KEY || "";
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash";
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
 export const aiLive = Boolean(API_KEY);
@@ -12,6 +12,7 @@ async function generate(system: string, prompt: string, temperature: number) {
   const res = await fetch(ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": API_KEY },
+    signal: AbortSignal.timeout(30_000),
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents: [{ role: "user", parts: [{ text: prompt }] }],
