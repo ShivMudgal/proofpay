@@ -8,7 +8,7 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
-        value: 22
+        value: "22"
       - key: PAYPAL_API_BASE
         value: https://api-m.sandbox.paypal.com
       - key: PAYPAL_CURRENCY
@@ -28,4 +28,6 @@ services:
       - key: GEMINI_MODEL
         value: gemini-3.5-flash
       - key: DEMO_FREELANCER_PAYPAL_EMAIL
+        sync: false
+      - key: GITHUB_TOKEN
         sync: false
