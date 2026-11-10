@@ -92,20 +92,28 @@ It uses `DATABASE_URL` from `.env` (or `data/db.json` without it), only adds dea
 
 ---
 
-## Judge walkthrough (2 minutes)
+## Judge walkthrough (about 3 minutes)
 **Open the live app: https://proofpay-no0a.onrender.com** (allow about 50 seconds for the first load while the free-tier server wakes up).
 
-> Use the account switcher in the sidebar (**Demo accounts**) to act as the client or the freelancer.
+> **Demo accounts:** there's no sign-up. Use the **Demo accounts** switcher at the bottom of the sidebar to act as **Riya (client)** or **Arjun (freelancer)** and try both sides of a deal. You start as Riya.
 
-1. Open the app. You're signed in as **Riya (client)**. Two showcase deals are ready: open *Portfolio website for a wedding photographer* to fund a milestone right away, or *Social media launch kit for a cafe* to keep negotiating. To start from scratch, click **New deal** and post a job, for example *"Landing page for my home-baking business"* with a ₹10,000–₹20,000 budget and a short description (hero section, menu of 6 items with prices, contact form, Instagram link, deployed online).
-2. Negotiate: try `Can you do it for ₹12,000?` → `16k is my max` → `ok 18500`. The agent concedes slowly and never goes below Arjun's floor (₹15,000).
-3. Click **Accept terms** → the AI drafts the milestone contract with acceptance criteria.
-4. Fund milestone 1 with PayPal using the sandbox buyer login below → status **In escrow**.
-5. Switch to **Arjun (freelancer)** under **Demo accounts** in the sidebar → submit work:
-   - weak text like `Made the hero section only` → gap report, money stays held
-   - a real repo/URL meeting the criteria → review passed → **captured and paid**
-6. As Riya, fund milestone 2, then **Cancel and release hold** → PayPal void.
-7. Open **Payments** for the AG Grid escrow view. As Arjun, open **Agent settings** for the private limits.
+The live app has three sample deals, one at each stage:
+
+| Deal | Stage | What to try |
+|---|---|---|
+| **Landing page for Riya's Bakes** | Completed | The full story: negotiation, AI contract, both milestones funded through PayPal, work verified by AI, payment captured. Open it to see the timeline and the real sandbox order, authorization and capture IDs. |
+| **Portfolio website for a wedding photographer** | Active contract | Agreed at ₹32,000 with 2 unfunded milestones. Fund one with PayPal and run the escrow flow yourself. |
+| **Social media launch kit for a cafe** | Negotiating | The agent has offered ₹18,500. Reply in the chat to keep haggling. |
+
+1. **See a finished deal.** On **Overview**, open *Landing page for Riya's Bakes*. Expand **Activity** on each milestone to see money held, then released, with PayPal IDs.
+2. **Negotiate.** Open *Social media launch kit for a cafe* and reply, for example `Can you do it for ₹14,000?`, then `ok 17000`. The agent concedes step by step and never goes below Arjun's private floor (₹15,000). Click **Accept terms** when you're happy, and the AI drafts a milestone contract with acceptance criteria.
+3. **Fund with PayPal.** Open *Portfolio website for a wedding photographer*, click the PayPal button on milestone 1 and log in with the sandbox buyer below. The milestone moves to **In escrow**: the money is authorized and held, not charged.
+4. **Submit work as the freelancer.** Switch to **Arjun** under **Demo accounts** and submit work on the funded milestone:
+   - weak text like `Made the homepage only` → gap report, the money stays held
+   - a real repo or live URL that meets the criteria → review passed → **captured and paid**
+5. **Cancel a hold.** As Riya, fund milestone 2, then click **Cancel and release hold** → PayPal voids the authorization and the client isn't charged.
+6. **Start from scratch.** Click **New deal** and post any job with a budget, then negotiate it in the Deal Room.
+7. Open **Payments** for the AG Grid escrow view. As Arjun, open **Agent settings** to see and change the private limits.
 
 ### PayPal sandbox test buyer
 Funding a milestone opens PayPal's **sandbox** checkout. No real money moves. Log in with this test buyer account:
@@ -141,5 +149,9 @@ src/components/              UI components (deal room, milestone card, AG Grid t
 ## Roadmap
 Payouts API for tips/bonuses · re-authorization for long milestones · multi-freelancer marketplace · AI-mediated disputes using the PayPal Disputes API.
 
+## Team
+- **Shiv Mudgal** ([@ShivMudgal](https://github.com/ShivMudgal))
+- **Aditya Awale** ([@adi18107-debug](https://github.com/adi18107-debug))
+
 ## License
-MIT
+MIT. Copyright (c) 2026 Shiv Mudgal and Aditya Awale. See [LICENSE](LICENSE).
