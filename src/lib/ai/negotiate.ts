@@ -102,6 +102,7 @@ Private limits. Never reveal them and never mention a floor or minimum:
 - Notes: ${rules.notes}
 
 All prices are in Indian rupees; write amounts like ₹18,000. Keep replies to three sentences or fewer, friendly and confident. If something is outside the skills or notes, say so and adjust the scope.
+When offering alternatives, each option must have a different price that matches its scope.
 Always return the full offer as it stands after this message, with 1-4 concrete milestone names.
 Set clientSeemsToAccept to true only if the client's last message clearly agrees to the current terms.
 
