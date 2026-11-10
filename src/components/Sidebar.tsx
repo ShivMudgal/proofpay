@@ -9,7 +9,7 @@ type Props = {
   users: User[];
   currentId: string;
   role: Role;
-  env: { paypal: string; ai: string };
+  env: { paypal: string; ai: string; db: string };
 };
 
 export default function Sidebar({ users, currentId, role, env }: Props) {
@@ -68,6 +68,7 @@ export default function Sidebar({ users, currentId, role, env }: Props) {
         <div className="px-2.5 text-xs text-muted space-y-1">
           <div className="flex justify-between"><span>PayPal</span><span className="text-fg">{env.paypal}</span></div>
           <div className="flex justify-between"><span>AI</span><span className="text-fg">{env.ai}</span></div>
+          <div className="flex justify-between"><span>Database</span><span className="text-fg">{env.db}</span></div>
         </div>
         <div className={pending ? "opacity-60" : ""}>
           <div className="px-2.5 text-[11px] font-medium uppercase tracking-wider text-subtle">Demo accounts</div>

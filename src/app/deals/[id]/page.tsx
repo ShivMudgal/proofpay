@@ -9,7 +9,7 @@ import { inr } from "@/components/format";
 
 export default async function DealPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const db = read();
+  const db = await read();
   const job = db.jobs.find((j) => j.id === id);
   if (!job) notFound();
 

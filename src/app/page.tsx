@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { read } from "@/lib/db";
 import { currentUser } from "@/lib/session";
 import { contractsFor, dealsFor, recentActivity, totals, userName } from "@/lib/queries";
 import PageHeader, { Stat } from "@/components/PageHeader";
@@ -9,10 +10,11 @@ import ResetButton from "@/components/ResetButton";
 
 export default async function Overview() {
   const user = await currentUser();
-  const deals = dealsFor(user);
-  const contracts = contractsFor(user);
+  const db = await read();
+  const deals = dealsFor(db, user);
+  const contracts = contractsFor(db, user);
   const t = totals(contracts.flatMap((c) => c.milestones));
-  const activity = recentActivity(user);
+  const activity = recentActivity(db, user);
 
   return (
     <>
@@ -47,7 +49,7 @@ export default async function Overview() {
                   <td className="td">
                     <Link href={d.contractId ? `/contracts/${d.contractId}` : `/deals/${d.id}`} className="font-medium hover:text-accent">{d.title}</Link>
                   </td>
-                  <td className="td text-muted">{userName(user.role === "CLIENT" ? d.freelancerId : d.clientId)}</td>
+                  <td className="td text-muted">{userName(db, user.role === "CLIENT" ? d.freelancerId : d.clientId)}</td>
                   <td className="td num">{d.currentOffer ? `${inr(d.currentOffer.price)} · ${d.currentOffer.deadlineDays}d` : <span className="text-subtle">No offer yet</span>}</td>
                   <td className="td"><DealBadge status={d.status} /></td>
                 </tr>

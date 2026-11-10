@@ -11,12 +11,12 @@ import { shortDate, inr } from "@/components/format";
 
 export default async function ContractPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const db = read();
+  const db = await read();
   const contract = db.contracts.find((c) => c.id === id);
   if (!contract) notFound();
 
   const user = await currentUser();
-  const milestones = milestonesOf(contract);
+  const milestones = milestonesOf(db, contract);
   const t = totals(milestones);
   const client = db.users.find((u) => u.id === contract.clientId)!;
   const freelancer = db.users.find((u) => u.id === contract.freelancerId)!;

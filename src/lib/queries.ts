@@ -1,5 +1,7 @@
-import { read } from "./db";
-import type { Contract, Milestone, MilestoneStatus, User } from "./types";
+import type { Contract, DB, Milestone, MilestoneStatus, User } from "./types";
+
+// Pure helpers over a DB snapshot. Pages load one snapshot with `await read()` and pass it in,
+// so a page costs one database round trip.
 
 const HELD: MilestoneStatus[] = ["FUNDED", "SUBMITTED", "REJECTED"];
 
@@ -13,31 +15,27 @@ export function totals(milestones: Milestone[]) {
   };
 }
 
-export function dealsFor(user: User) {
-  return read().jobs.filter((j) => j.clientId === user.id || j.freelancerId === user.id);
+export function dealsFor(db: DB, user: User) {
+  return db.jobs.filter((j) => j.clientId === user.id || j.freelancerId === user.id);
 }
 
-export function contractsFor(user: User) {
-  const db = read();
+export function contractsFor(db: DB, user: User) {
   return db.contracts
     .filter((c) => c.clientId === user.id || c.freelancerId === user.id)
-    .map((c) => ({ ...c, milestones: milestonesOf(c) }));
+    .map((c) => ({ ...c, milestones: milestonesOf(db, c) }));
 }
 
-export function milestonesOf(c: Contract) {
-  return read()
-    .milestones.filter((m) => m.contractId === c.id)
-    .sort((a, b) => a.index - b.index);
+export function milestonesOf(db: DB, c: Contract) {
+  return db.milestones.filter((m) => m.contractId === c.id).sort((a, b) => a.index - b.index);
 }
 
-export function recentActivity(user: User, limit = 8) {
-  const contracts = contractsFor(user);
-  return contracts
+export function recentActivity(db: DB, user: User, limit = 8) {
+  return contractsFor(db, user)
     .flatMap((c) => c.milestones.flatMap((m) => m.timeline.map((t) => ({ ...t, contract: c, milestone: m }))))
     .sort((a, b) => b.at.localeCompare(a.at))
     .slice(0, limit);
 }
 
-export function userName(id: string) {
-  return read().users.find((u) => u.id === id)?.name ?? "Unknown";
+export function userName(db: DB, id: string) {
+  return db.users.find((u) => u.id === id)?.name ?? "Unknown";
 }

@@ -43,7 +43,10 @@ AI: **Google Gemini** (JSON mode, validated with zod, one retry). Without a key,
 All prices are in **Indian rupees (₹)**. Since April 2021 PayPal doesn't process domestic INR payments in India; Indian accounts send and receive international payments in USD. ProofPay therefore shows and stores amounts in INR and converts to USD when it creates the PayPal order (`INR_PER_USD`, default 88; update it to the current rate). If both sandbox accounts are registered in India you can set `PAYPAL_CURRENCY=INR` to skip the conversion.
 
 ## Tech stack
-Next.js 15 (App Router) · TypeScript · Tailwind CSS v4 · PayPal Orders v2 + JS SDK · Gemini API · AG Grid · zod · JSON-file datastore · Render
+Next.js 15 (App Router) · TypeScript · Tailwind CSS v4 · PayPal Orders v2 + JS SDK · Gemini API · AG Grid · zod · Neon Postgres · Render
+
+## Data storage
+With `DATABASE_URL` set, ProofPay stores its data in **Neon Postgres**. The app state is one JSONB document in the `proofpay_state` table. The table is created and seeded automatically on first start. Every write runs in a transaction that locks that row (`SELECT … FOR UPDATE`), so concurrent requests and multiple instances can't overwrite each other, and data survives redeploys. Without `DATABASE_URL`, the app falls back to a local `data/db.json` file so it still runs with no setup. The sidebar and `/api/health` show which one is in use.
 
 ---
 
@@ -62,13 +65,14 @@ With no keys it runs in local mode (simulated PayPal, rule-based fallback for th
 2. **Gemini** – https://aistudio.google.com/apikey → `GEMINI_API_KEY`.
 3. *(Optional)* **Webhooks** – in your PayPal app add webhook `https://<your-domain>/api/webhooks/paypal`, subscribe to Payment authorization + capture events, put its ID in `PAYPAL_WEBHOOK_ID`.
 4. *(Optional)* `GITHUB_TOKEN` raises the GitHub API rate limit for the verifier.
+5. *(Optional)* **Neon Postgres**: create a project at https://console.neon.tech and put its pooled connection string in `DATABASE_URL`.
 
 Reset demo data any time: **Reset demo** link on the home page, or `npm run seed`. A reset keeps the two demo accounts and Arjun's agent settings, and starts with no deals.
 
 ## Deploy (Render)
 1. Push to GitHub → Render → **New → Blueprint** → pick the repo (uses `render.yaml`).
 2. Fill the secret env vars. Health check: `/api/health`.
-> The free tier has an ephemeral disk, so demo data resets on redeploy (it re-seeds automatically).
+> Set `DATABASE_URL` so data is kept in Neon across redeploys. Without it, the free tier's ephemeral disk resets the demo data on every redeploy.
 
 ---
 
@@ -113,7 +117,7 @@ src/lib/ai/negotiate.ts      Negotiation agent and server-side limits
 src/lib/ai/contract.ts       Agreed terms → milestone contract
 src/lib/ai/verify.ts         Evidence collection (GitHub / URL / text) and review
 src/lib/llm.ts               Gemini client with schema validation
-src/lib/db.ts                Datastore (JSON file, swap for Postgres)
+src/lib/db.ts                Datastore: Neon Postgres (row-locked JSONB) or local JSON file
 src/app/                     Pages
 src/components/              UI components (deal room, milestone card, AG Grid table)
 ```

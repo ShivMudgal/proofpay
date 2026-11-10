@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { read } from "@/lib/db";
 import { currentUser } from "@/lib/session";
 import { contractsFor, totals, userName } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
@@ -6,7 +7,8 @@ import { shortDate, inr } from "@/components/format";
 
 export default async function Contracts() {
   const user = await currentUser();
-  const contracts = contractsFor(user);
+  const db = await read();
+  const contracts = contractsFor(db, user);
   return (
     <>
       <PageHeader title="Contracts" description="Milestone contracts created from accepted deals." />
@@ -26,7 +28,7 @@ export default async function Contracts() {
               return (
                 <tr key={c.id} className="hover:bg-canvas">
                   <td className="td"><Link href={`/contracts/${c.id}`} className="font-medium hover:text-accent">{c.title}</Link></td>
-                  <td className="td text-muted">{userName(user.role === "CLIENT" ? c.freelancerId : c.clientId)}</td>
+                  <td className="td text-muted">{userName(db, user.role === "CLIENT" ? c.freelancerId : c.clientId)}</td>
                   <td className="td">
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-1.5 rounded-full bg-gray-100 overflow-hidden">

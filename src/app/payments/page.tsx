@@ -7,8 +7,9 @@ import { inr } from "@/components/format";
 
 export default async function Payments() {
   const user = await currentUser();
-  const { submissions } = read();
-  const contracts = contractsFor(user);
+  const db = await read();
+  const { submissions } = db;
+  const contracts = contractsFor(db, user);
   const milestones = contracts.flatMap((c) => c.milestones);
 
   const rows: Row[] = contracts.flatMap((c) =>

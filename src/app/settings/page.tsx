@@ -13,7 +13,7 @@ export default async function Settings() {
       </>
     );
   }
-  const rules = read().rules.find((r) => r.freelancerId === user.id)!;
+  const rules = (await read()).rules.find((r) => r.freelancerId === user.id)!;
   return (
     <>
       <PageHeader

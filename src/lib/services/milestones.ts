@@ -7,8 +7,8 @@ import type { Milestone, MilestoneStatus, Submission, User } from "../types";
 
 const SUBMITTABLE: MilestoneStatus[] = ["FUNDED", "REJECTED"];
 
-function load(milestoneId: string) {
-  const db = read();
+async function load(milestoneId: string) {
+  const db = await read();
   const milestone = db.milestones.find((m) => m.id === milestoneId);
   if (!milestone) throw notFound("Milestone");
   const contract = db.contracts.find((c) => c.id === milestone.contractId)!;
@@ -26,7 +26,7 @@ function update<T>(milestoneId: string, fn: (m: Milestone) => T) {
 const money = (n: number) => formatINR(n, !Number.isInteger(n));
 
 export async function createOrder(milestoneId: string, user: User) {
-  const { db, milestone, contract } = load(milestoneId);
+  const { db, milestone, contract } = await load(milestoneId);
   if (user.id !== contract.clientId) throw forbidden("Only the client can fund milestones");
   if (milestone.status !== "PENDING") throw badRequest("Milestone is already funded");
 
@@ -47,7 +47,7 @@ export async function createOrder(milestoneId: string, user: User) {
 }
 
 export async function authorize(milestoneId: string, orderId: string, user: User) {
-  const { milestone, contract } = load(milestoneId);
+  const { milestone, contract } = await load(milestoneId);
   if (user.id !== contract.clientId) throw forbidden("Only the client can fund milestones");
   if (milestone.status !== "PENDING") throw badRequest("Milestone is already funded");
   if (milestone.paypalOrderId !== orderId) throw badRequest("Order does not match this milestone");
@@ -64,7 +64,7 @@ export async function authorize(milestoneId: string, orderId: string, user: User
 }
 
 export async function submitWork(milestoneId: string, user: User, type: Submission["type"], rawValue: string) {
-  const { milestone, contract } = load(milestoneId);
+  const { milestone, contract } = await load(milestoneId);
   if (user.id !== contract.freelancerId) throw forbidden("Only the freelancer can submit work");
   if (!SUBMITTABLE.includes(milestone.status)) throw badRequest("Milestone must be funded before submitting");
 
@@ -113,7 +113,7 @@ export async function submitWork(milestoneId: string, user: User, type: Submissi
 }
 
 export async function cancel(milestoneId: string, user: User) {
-  const { milestone, contract } = load(milestoneId);
+  const { milestone, contract } = await load(milestoneId);
   if (user.id !== contract.clientId) throw forbidden("Only the client can cancel a milestone");
   if (!SUBMITTABLE.includes(milestone.status) || !milestone.authorizationId) throw badRequest("There is no hold to cancel");
 

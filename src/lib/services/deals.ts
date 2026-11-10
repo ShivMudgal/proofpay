@@ -7,8 +7,8 @@ import type { User } from "../types";
 
 const DAY_MS = 86_400_000;
 
-function loadDeal(jobId: string) {
-  const db = read();
+async function loadDeal(jobId: string) {
+  const db = await read();
   const job = db.jobs.find((j) => j.id === jobId);
   if (!job) throw notFound("Deal");
   return { db, job };
@@ -19,7 +19,7 @@ export async function postMessage(jobId: string, user: User, content: string) {
   const text = content.trim().slice(0, 1000);
   if (!text) throw badRequest("Message is empty");
 
-  const { db, job } = loadDeal(jobId);
+  const { db, job } = await loadDeal(jobId);
   if (job.status !== "NEGOTIATING") throw badRequest("This negotiation is closed");
 
   const rules = db.rules.find((r) => r.freelancerId === job.freelancerId)!;
@@ -73,7 +73,7 @@ export async function acceptTerms(jobId: string, user: User) {
 }
 
 export async function createContract(jobId: string) {
-  const { db, job } = loadDeal(jobId);
+  const { db, job } = await loadDeal(jobId);
   if (job.contractId) return { contractId: job.contractId };
   if (job.status !== "AGREED" || !job.currentOffer) throw badRequest("Accept the terms first");
 

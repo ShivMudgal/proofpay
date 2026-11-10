@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { read } from "@/lib/db";
 import { currentUser } from "@/lib/session";
 import { dealsFor, userName } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
@@ -8,7 +9,8 @@ import { IconPlus } from "@/components/icons";
 
 export default async function Deals() {
   const user = await currentUser();
-  const deals = dealsFor(user);
+  const db = await read();
+  const deals = dealsFor(db, user);
   return (
     <>
       <PageHeader
@@ -29,8 +31,8 @@ export default async function Deals() {
             {deals.map((d) => (
               <tr key={d.id} className="hover:bg-canvas">
                 <td className="td"><Link href={`/deals/${d.id}`} className="font-medium hover:text-accent">{d.title}</Link></td>
-                <td className="td text-muted">{userName(d.clientId)}</td>
-                <td className="td text-muted">{userName(d.freelancerId)}</td>
+                <td className="td text-muted">{userName(db, d.clientId)}</td>
+                <td className="td text-muted">{userName(db, d.freelancerId)}</td>
                 <td className="td text-right num text-muted">{inr(d.budgetMin)} – {inr(d.budgetMax)}</td>
                 <td className="td text-right num">{d.currentOffer ? inr(d.currentOffer.price) : "—"}</td>
                 <td className="td text-muted">{shortDate(d.createdAt)}</td>

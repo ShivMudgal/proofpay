@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { currentUser } from "@/lib/session";
-import { read } from "@/lib/db";
+import { dbBackend, read } from "@/lib/db";
 import { paypalLive } from "@/lib/paypal";
 import { aiLive } from "@/lib/llm";
 import Sidebar from "@/components/Sidebar";
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await currentUser();
-  const { users } = read();
+  const { users } = await read();
 
   return (
     <html lang="en">
@@ -24,7 +24,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             users={users}
             currentId={user.id}
             role={user.role}
-            env={{ paypal: paypalLive ? "Sandbox" : "Demo", ai: aiLive ? "Gemini" : "Offline" }}
+            env={{ paypal: paypalLive ? "Sandbox" : "Demo", ai: aiLive ? "Gemini" : "Offline", db: dbBackend === "postgres" ? "Neon Postgres" : "Local file" }}
           />
           <main className="flex-1 min-w-0">
             <div className="mx-auto max-w-[1180px] px-8 py-8">{children}</div>
