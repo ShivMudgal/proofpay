@@ -3,6 +3,11 @@
 
 Built for the **PayPal AI Hackathon 2026**.
 
+**Live demo: https://proofpay-no0a.onrender.com**
+
+> It runs on Render's free tier, so the first request after a quiet spell can take **about 50 seconds** while the server wakes up. After that it's fast.
+> No sign-up needed: use the **Demo accounts** switcher in the sidebar to act as the client (Riya) or the freelancer (Arjun).
+
 Freelancers and small clients don't trust each other: clients fear paying upfront, freelancers fear not getting paid, and loosely agreed terms end in "that's not what we agreed." ProofPay fixes the whole deal lifecycle:
 
 1. **AI Deal Room** – the freelancer's AI agent negotiates price, scope, deadline and milestones with the client, within the freelancer's **private limits** (floor price enforced in code, never revealed).
@@ -68,19 +73,34 @@ Reset demo data any time: **Reset demo** link on the home page, or `npm run seed
 ---
 
 ## Judge walkthrough (2 minutes)
+**Open the live app: https://proofpay-no0a.onrender.com** (allow about 50 seconds for the first load while the free-tier server wakes up).
+
 > Use the account switcher in the sidebar (**Demo accounts**) to act as the client or the freelancer.
 
 1. Open the app. You're signed in as **Riya (client)** and start with no deals. Click **New deal** and post a job, for example *"Landing page for my home-baking business"* with a ₹10,000–₹20,000 budget and a short description (hero section, menu of 6 items with prices, contact form, Instagram link, deployed online).
 2. Negotiate: try `Can you do it for ₹12,000?` → `16k is my max` → `ok 18500`. The agent concedes slowly and never goes below Arjun's floor (₹15,000).
 3. Click **Accept terms** → the AI drafts the milestone contract with acceptance criteria.
-4. Fund milestone 1 with PayPal (sandbox buyer login) → status **In escrow**.
+4. Fund milestone 1 with PayPal using the sandbox buyer login below → status **In escrow**.
 5. Switch to **Arjun (freelancer)** under **Demo accounts** in the sidebar → submit work:
    - weak text like `Made the hero section only` → gap report, money stays held
    - a real repo/URL meeting the criteria → review passed → **captured and paid**
 6. As Riya, fund milestone 2, then **Cancel and release hold** → PayPal void.
 7. Open **Payments** for the AG Grid escrow view. As Arjun, open **Agent settings** for the private limits.
 
-**PayPal sandbox test buyer:** use the Personal sandbox account from your PayPal developer dashboard (Sandbox → Accounts).
+### PayPal sandbox test buyer
+Funding a milestone opens PayPal's **sandbox** checkout. No real money moves. Log in with this test buyer account:
+
+| Field | Value |
+|---|---|
+| Email | `BUYER_SANDBOX_EMAIL_HERE` |
+| Password | `BUYER_SANDBOX_PASSWORD_HERE` |
+
+1. As **Riya (client)**, open the contract and click the yellow **PayPal** button on a milestone.
+2. In the PayPal pop-up, click **Log in** and enter the sandbox email and password above. Don't use a real PayPal account.
+3. Click **Continue** / **Complete purchase** to approve. The pop-up closes and the milestone moves to **In escrow**. The money is authorized and held, not yet captured.
+4. If the pop-up doesn't open, allow pop-ups for the site and try again.
+
+The freelancer's payee is a sandbox Business account. Its balance is visible only in the PayPal developer dashboard.
 
 ## Project structure
 ```
