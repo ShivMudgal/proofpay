@@ -4,6 +4,7 @@ import { read } from "@/lib/db";
 import { currentUser } from "@/lib/session";
 import PageHeader from "@/components/PageHeader";
 import { DealBadge } from "@/components/StatusBadge";
+import { dealStatus } from "@/lib/queries";
 import DealRoom from "@/components/DealRoom";
 import { inr } from "@/components/format";
 
@@ -25,7 +26,7 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
         title={job.title}
         description={
           <span className="flex items-center gap-3">
-            <DealBadge status={job.status} />
+            <DealBadge status={dealStatus(db, job)} />
             <span>{client.name} · {freelancer.name}</span>
             <span className="num">Budget {inr(job.budgetMin)} – {inr(job.budgetMax)}</span>
           </span>

@@ -26,7 +26,8 @@ export default function StatusBadge({ status }: { status: MilestoneStatus }) {
 const DEAL: Record<string, { label: string; cls: string }> = {
   NEGOTIATING: { label: "Negotiating", cls: "text-indigo-800 bg-indigo-50 ring-indigo-200" },
   AGREED: { label: "Agreed", cls: "text-amber-800 bg-amber-50 ring-amber-200" },
-  CONTRACTED: { label: "Active contract", cls: "text-emerald-800 bg-emerald-50 ring-emerald-200" },
+  CONTRACTED: { label: "Active contract", cls: "text-sky-800 bg-sky-50 ring-sky-200" },
+  COMPLETED: { label: "Completed", cls: "text-emerald-800 bg-emerald-50 ring-emerald-200" },
 };
 
 export function DealBadge({ status }: { status: string }) {

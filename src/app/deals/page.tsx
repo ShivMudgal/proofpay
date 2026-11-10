@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { read } from "@/lib/db";
 import { currentUser } from "@/lib/session";
-import { dealsFor, userName } from "@/lib/queries";
+import { dealStatus, dealsFor, userName } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import { DealBadge } from "@/components/StatusBadge";
 import { shortDate, inr } from "@/components/format";
@@ -36,7 +36,7 @@ export default async function Deals() {
                 <td className="td text-right num text-muted">{inr(d.budgetMin)} – {inr(d.budgetMax)}</td>
                 <td className="td text-right num">{d.currentOffer ? inr(d.currentOffer.price) : "—"}</td>
                 <td className="td text-muted">{shortDate(d.createdAt)}</td>
-                <td className="td"><DealBadge status={d.status} /></td>
+                <td className="td"><DealBadge status={dealStatus(db, d)} /></td>
               </tr>
             ))}
             {deals.length === 0 && <tr><td colSpan={7} className="td text-center text-muted py-12">No deals yet.</td></tr>}

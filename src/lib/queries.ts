@@ -1,4 +1,4 @@
-import type { Contract, DB, Milestone, MilestoneStatus, User } from "./types";
+import type { Contract, DB, Job, Milestone, MilestoneStatus, User } from "./types";
 
 // Pure helpers over a DB snapshot. Pages load one snapshot with `await read()` and pass it in,
 // so a page costs one database round trip.
@@ -13,6 +13,15 @@ export function totals(milestones: Milestone[]) {
     held: sum((m) => HELD.includes(m.status)),
     released: sum((m) => m.status === "RELEASED"),
   };
+}
+
+export type DealDisplayStatus = Job["status"] | "COMPLETED";
+
+/** The deal's status for display: a contracted deal whose milestones are all paid shows as Completed. */
+export function dealStatus(db: DB, job: Job): DealDisplayStatus {
+  if (job.status !== "CONTRACTED" || !job.contractId) return job.status;
+  const milestones = db.milestones.filter((m) => m.contractId === job.contractId);
+  return milestones.length > 0 && milestones.every((m) => m.status === "RELEASED") ? "COMPLETED" : job.status;
 }
 
 export function dealsFor(db: DB, user: User) {

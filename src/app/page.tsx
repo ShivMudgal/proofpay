@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { read } from "@/lib/db";
 import { currentUser } from "@/lib/session";
-import { contractsFor, dealsFor, recentActivity, totals, userName } from "@/lib/queries";
+import { contractsFor, dealStatus, dealsFor, recentActivity, totals, userName } from "@/lib/queries";
 import PageHeader, { Stat } from "@/components/PageHeader";
 import { DealBadge } from "@/components/StatusBadge";
 import { dateTime, inr } from "@/components/format";
@@ -52,7 +52,7 @@ export default async function Overview() {
                   </td>
                   <td className="td text-muted">{userName(db, user.role === "CLIENT" ? d.freelancerId : d.clientId)}</td>
                   <td className="td num">{d.currentOffer ? `${inr(d.currentOffer.price)} · ${d.currentOffer.deadlineDays}d` : <span className="text-subtle">No offer yet</span>}</td>
-                  <td className="td"><DealBadge status={d.status} /></td>
+                  <td className="td"><DealBadge status={dealStatus(db, d)} /></td>
                 </tr>
               ))}
               {deals.length === 0 && (
