@@ -58,7 +58,7 @@ With no keys it runs in local mode (simulated PayPal, rule-based fallback for th
 3. *(Optional)* **Webhooks** – in your PayPal app add webhook `https://<your-domain>/api/webhooks/paypal`, subscribe to Payment authorization + capture events, put its ID in `PAYPAL_WEBHOOK_ID`.
 4. *(Optional)* `GITHUB_TOKEN` raises the GitHub API rate limit for the verifier.
 
-Reset demo data any time: **Reset demo** link on the home page, or `npm run seed`.
+Reset demo data any time: **Reset demo** link on the home page, or `npm run seed`. A reset keeps the two demo accounts and Arjun's agent settings, and starts with no deals.
 
 ## Deploy (Render)
 1. Push to GitHub → Render → **New → Blueprint** → pick the repo (uses `render.yaml`).
@@ -70,7 +70,7 @@ Reset demo data any time: **Reset demo** link on the home page, or `npm run seed
 ## Judge walkthrough (2 minutes)
 > Use the account switcher in the sidebar (**Demo accounts**) to act as the client or the freelancer.
 
-1. Open the app. You're signed in as **Riya (client)**. Go to **Deals** and open *"Landing page for my home-baking business"*.
+1. Open the app. You're signed in as **Riya (client)** and start with no deals. Click **New deal** and post a job, for example *"Landing page for my home-baking business"* with a ₹10,000–₹20,000 budget and a short description (hero section, menu of 6 items with prices, contact form, Instagram link, deployed online).
 2. Negotiate: try `Can you do it for ₹12,000?` → `16k is my max` → `ok 18500`. The agent concedes slowly and never goes below Arjun's floor (₹15,000).
 3. Click **Accept terms** → the AI drafts the milestone contract with acceptance criteria.
 4. Fund milestone 1 with PayPal (sandbox buyer login) → status **In escrow**.

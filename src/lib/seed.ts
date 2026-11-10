@@ -32,32 +32,8 @@ export function seedData(): DB {
         notes: "Prefer 2-3 milestones. Always include a deployed preview link. No logo design.",
       },
     ],
-    jobs: [
-      {
-        id: "job_demo",
-        clientId: "u_client",
-        freelancerId: "u_freelancer",
-        title: "Landing page for my home-baking business",
-        description:
-          "I need a responsive landing page for 'Riya's Bakes' with a hero section, a menu of 6 items with prices, a contact form, and Instagram link. Should be deployed online.",
-        budgetMin: 10000,
-        budgetMax: 20000,
-        status: "NEGOTIATING",
-        currentOffer: null,
-        contractId: null,
-        createdAt: now,
-      },
-    ],
-    messages: [
-      {
-        id: "m_sys",
-        jobId: "job_demo",
-        sender: "SYSTEM",
-        content:
-          "Negotiation started with Arjun Mehta's agent.",
-        createdAt: now,
-      },
-    ],
+    jobs: [],
+    messages: [],
     contracts: [],
     milestones: [],
     submissions: [],
